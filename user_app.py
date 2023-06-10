@@ -73,7 +73,8 @@ ipca_tab, cdi_tab, selic_tab, fgts_tab, poup_tab = st.tabs(tabs_title_list)
 
 def fill_data_in_tab(collection: DBCollection):
     st.dataframe(
-        collection.get_transposed_stacked_dataframe(),
+        collection.get_transposed_stacked_dataframe().style.format(na_rep="-", precision=4, decimal=",", thousands=None),
+        column_config={collection.STACKED_YEAR_COLUMN: st.column_config.NumberColumn(format="%d")},
         use_container_width=True,
     )
     stacked_dataframe = collection.get_stacked_dataframe_adjusted_from_values(initial_value, initial_date, final_date, added_rate, added_rate_type)

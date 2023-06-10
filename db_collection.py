@@ -24,10 +24,10 @@ class DBCollection(ABC):
     STACKED_MONTH_COLUMN = "Mês"
     STACKED_YEAR_COLUMN = "Ano"
     STACKED_DATE_COLUMN = "Data"
-    STACKED_RATE_COLUMN = "Taxa(%)"
-    STACKED_VALUE_COLUMN = "Valor(R$)"
-    STACKED_ADJ_RATE_COLUMN = "Taxa ajustada(%)"
-    STACKED_ADJ_VALUE_COLUMN = "Valor ajustado(R$)"
+    STACKED_RATE_COLUMN = "Taxa Índice(%)"
+    STACKED_VALUE_COLUMN = "Valor Índice(R$)"
+    STACKED_ADJ_RATE_COLUMN = "Taxa Índice + Adicional(%)"
+    STACKED_ADJ_VALUE_COLUMN = "Valor Índice + Adicional(R$)"
     
     # Dictionary to rename columns when showing stacked dataframes
     COLLECTION_RENAME_DICT = {
@@ -39,7 +39,7 @@ class DBCollection(ABC):
     
     # Non stacked datafame columns
     TRANSPOSED_MONTHS_COLUMNS = date.MONTHS_LIST
-    TRANSPOSED_YEARLY_RATE_COLUMN = "Taxa anual(%)"
+    TRANSPOSED_YEARLY_RATE_COLUMN = "Anual(%)"
     
     def __init__(self, mongo_client: pymongo.MongoClient, database_name: str, collection_name: str, title) -> None:
         self._mongo_client = mongo_client
@@ -70,7 +70,7 @@ class DBCollection(ABC):
     def update_dataframe_from_db(self) -> None:
         # Get the raw dataframe from database
         db = self._mongo_client.get_database(self._database_name)
-        items = db.get_collection(self._collection_name).find()
+        items = db.get_collection(self._collection_name).find().sort(self.DB_ID_COLUMN, pymongo.ASCENDING)
         self._raw_dataframe = pd.DataFrame(list(items))
         
         # Get the stacked dataframe
