@@ -7,6 +7,10 @@ class InterestCalculation:
     PREFIXED_RATE = "Préfixada(+)"
     PROPORTIONAL_RATE = "Proporcional(x)"
     
+    NONE_RATE_INDEX = 0
+    PREFIXED_RATE_INDEX = 1
+    PROPORTIONAL_RATE_INDEX = 2
+    
     ADDED_RATE_TYPE_LIST = [NONE_RATE, PREFIXED_RATE, PROPORTIONAL_RATE]
     
     @staticmethod

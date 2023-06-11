@@ -49,12 +49,10 @@ with st.sidebar:
     with left_col:
         initial_month = st.selectbox("Mês inicial:", months_list)
         final_month = st.selectbox("Mês final:", months_list)
-        added_rate = st.number_input("Taxa adicional a.a. (%):", min_value=0.00, max_value=1000.00, value=0.00)
     
     with right_col:
         initial_year = st.selectbox("Ano inicial:", years_list, index=0)
         final_year = st.selectbox("Ano final:", years_list, index=len(years_list)-1)
-        added_rate_type = st.radio("Tipo de taxa", added_rate_type_list)
     
     initial_date = date.convert_values_to_datetime(initial_year, date.get_month_index_from_string(initial_month))
     final_date = date.convert_values_to_datetime(final_year, date.get_month_index_from_string(final_month))
@@ -71,35 +69,54 @@ tabs_title_list = [
 
 ipca_tab, cdi_tab, selic_tab, fgts_tab, poup_tab = st.tabs(tabs_title_list)
 
-def fill_data_in_tab(collection: DBCollection):
-    st.dataframe(
-        collection.get_transposed_stacked_dataframe().style.format(na_rep="-", precision=4, decimal=",", thousands=None),
-        column_config={collection.STACKED_YEAR_COLUMN: st.column_config.NumberColumn(format="%d")},
-        use_container_width=True,
-    )
+def fill_data_in_tab(collection: DBCollection, rate_value, rate_index):
+
+    col1, col2 = st.columns(2)
+    with col1:
+        added_rate = st.number_input(
+            "Taxa adicional a.a. (%):", min_value=0.00, max_value=1000.00, value=rate_value,
+            key=collection.get_collection_name()+"rate",
+        )
+    with col2:
+        added_rate_type = st.radio(
+            "Tipo de taxa:", added_rate_type_list, horizontal=True, index=rate_index,
+            key=collection.get_collection_name()+"rate_type",
+        )
+
     stacked_dataframe = collection.get_stacked_dataframe_adjusted_from_values(initial_value, initial_date, final_date, added_rate, added_rate_type)
-    st.line_chart(
-        data=stacked_dataframe,
-        x=collection.STACKED_DATE_COLUMN,
-        y=[collection.STACKED_VALUE_COLUMN, collection.STACKED_ADJ_VALUE_COLUMN],
-    )
-    st.line_chart(
-        data=stacked_dataframe,
-        x=collection.STACKED_DATE_COLUMN,
-        y=[collection.STACKED_RATE_COLUMN, collection.STACKED_ADJ_RATE_COLUMN],
-    )
+
+    with st.expander("Tabela de histórico do Índice:", expanded=False):
+        st.dataframe(
+            collection.get_transposed_stacked_dataframe().style.format(na_rep="-", precision=4, decimal=",", thousands=None),
+            column_config={collection.STACKED_YEAR_COLUMN: st.column_config.NumberColumn(format="%d")},
+            use_container_width=True,
+        )    
+    
+    with st.expander("Gráfico de valor acumulado:", expanded=True):
+        st.line_chart(
+            data=stacked_dataframe,
+            x=collection.STACKED_DATE_COLUMN,
+            y=[collection.STACKED_VALUE_COLUMN, collection.STACKED_ADJ_VALUE_COLUMN],
+        )
+    
+    with st.expander("Gráfico de taxa mensal:", expanded=True):
+        st.line_chart(
+            data=stacked_dataframe,
+            x=collection.STACKED_DATE_COLUMN,
+            y=[collection.STACKED_RATE_COLUMN, collection.STACKED_ADJ_RATE_COLUMN],
+        )
 
 with ipca_tab:
-    fill_data_in_tab(ipca)
+    fill_data_in_tab(ipca, 6.0, interest.PREFIXED_RATE_INDEX)
 
 with cdi_tab:
-    fill_data_in_tab(cdi)
+    fill_data_in_tab(cdi, 120.0, interest.PROPORTIONAL_RATE_INDEX)
 
 with selic_tab:
-    fill_data_in_tab(selic)
+    fill_data_in_tab(selic, 100.0, interest.PROPORTIONAL_RATE_INDEX)
 
 with fgts_tab:
-    fill_data_in_tab(fgts)
+    fill_data_in_tab(fgts, 0.0, interest.NONE_RATE_INDEX)
 
 with poup_tab:
-    fill_data_in_tab(poup)
+    fill_data_in_tab(poup, 0.0, interest.NONE_RATE_INDEX)
