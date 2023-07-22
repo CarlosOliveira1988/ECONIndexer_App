@@ -1,14 +1,14 @@
 """Script used to show a GUI interface, based on Streamlit, to show data related to IPCA, SELIC, etc.
 
-Those data are registered in MobgoDB.
+Those data are registered in MongoDB database.
 """
 
 import streamlit as st
 
-from db_connection import init_connection
-from db_collection import DBCollection, IPCACollection, CDICollection, SELICCollection, FGTSCollection, PoupancaCollection
+from db_collection import DBCollection, EconomicIndexers
 
 from dates import DateOperations as date
+
 from interest_rate import InterestCalculation as interest
 
 
@@ -22,15 +22,7 @@ st.write("## Indicadores Econômicos")
 
 
 
-mongo_client = init_connection()
-
-
-
-ipca = IPCACollection(mongo_client)
-cdi = CDICollection(mongo_client)
-selic = SELICCollection(mongo_client)
-fgts = FGTSCollection(mongo_client)
-poup = PoupancaCollection(mongo_client)
+indexers = EconomicIndexers()
 
 
 
@@ -38,7 +30,7 @@ with st.sidebar:
     
     months_list = date.MONTHS_LIST
     
-    years_list = ipca.get_years_from_stacked_dataframe()
+    years_list = indexers.ipca.get_years_from_stacked_dataframe()
     
     added_rate_type_list = interest.ADDED_RATE_TYPE_LIST
     
@@ -59,15 +51,7 @@ with st.sidebar:
 
 
 
-tabs_title_list = [
-    ipca.get_title(),
-    cdi.get_title(),
-    selic.get_title(),
-    fgts.get_title(),
-    poup.get_title(),
-]
-
-ipca_tab, cdi_tab, selic_tab, fgts_tab, poup_tab = st.tabs(tabs_title_list)
+ipca_tab, cdi_tab, selic_tab, fgts_tab, poup_tab = st.tabs(indexers.get_db_collection_titles_list())
 
 def fill_data_in_tab(collection: DBCollection, rate_value, rate_index):
 
@@ -107,16 +91,16 @@ def fill_data_in_tab(collection: DBCollection, rate_value, rate_index):
         )
 
 with ipca_tab:
-    fill_data_in_tab(ipca, 6.0, interest.PREFIXED_RATE_INDEX)
+    fill_data_in_tab(indexers.ipca, 6.0, interest.PREFIXED_RATE_INDEX)
 
 with cdi_tab:
-    fill_data_in_tab(cdi, 120.0, interest.PROPORTIONAL_RATE_INDEX)
+    fill_data_in_tab(indexers.cdi, 120.0, interest.PROPORTIONAL_RATE_INDEX)
 
 with selic_tab:
-    fill_data_in_tab(selic, 100.0, interest.PROPORTIONAL_RATE_INDEX)
+    fill_data_in_tab(indexers.selic, 100.0, interest.PROPORTIONAL_RATE_INDEX)
 
 with fgts_tab:
-    fill_data_in_tab(fgts, 0.0, interest.NONE_RATE_INDEX)
+    fill_data_in_tab(indexers.fgts, 0.0, interest.NONE_RATE_INDEX)
 
 with poup_tab:
-    fill_data_in_tab(poup, 0.0, interest.NONE_RATE_INDEX)
+    fill_data_in_tab(indexers.poup, 0.0, interest.NONE_RATE_INDEX)

@@ -8,9 +8,7 @@ import streamlit as st
 
 from dateutil.relativedelta import relativedelta
 
-from db_connection import init_connection
-from db_collection import DBCollection, IPCACollection, CDICollection, SELICCollection, FGTSCollection, PoupancaCollection
-
+from db_collection import DBCollection, EconomicIndexers
 
 
 # Example:
@@ -103,17 +101,11 @@ st.set_page_config(
 
 
 
-mongo_client = init_connection()
-
-ipca = IPCACollection(mongo_client)
-cdi = CDICollection(mongo_client)
-selic = SELICCollection(mongo_client)
-fgts = FGTSCollection(mongo_client)
-poup = PoupancaCollection(mongo_client)
+indexers = EconomicIndexers()
 
 
 
-last_date = get_date_from_item_registered(get_last_item_registered(ipca))
+last_date = get_date_from_item_registered(get_last_item_registered(indexers.ipca))
 next_date = last_date + relativedelta(months=1)
 
 
@@ -130,26 +122,26 @@ st.write(f"")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    ipca_number = show_number_input(ipca)
+    ipca_number = show_number_input(indexers.ipca)
 
 with col2:
-    cdi_number = show_number_input(cdi)
-    selic_number = show_number_input(selic)
+    cdi_number = show_number_input(indexers.cdi)
+    selic_number = show_number_input(indexers.selic)
 
 with col3:
-    fgts_number = show_number_input(fgts)
-    poup_number = show_number_input(poup)
+    fgts_number = show_number_input(indexers.fgts)
+    poup_number = show_number_input(indexers.poup)
 
 
 
 st.write(f"")
 st.write(f"")
 if st.button("INSERIR REGISTRO", disabled=is_blocked_to_insert_new_register(last_date)):
-    insert_new_item(ipca, next_date, ipca_number)
-    insert_new_item(cdi, next_date, cdi_number)
-    insert_new_item(selic, next_date, selic_number)
-    insert_new_item(fgts, next_date, fgts_number)
-    insert_new_item(poup, next_date, poup_number)
+    insert_new_item(indexers.ipca, next_date, ipca_number)
+    insert_new_item(indexers.cdi, next_date, cdi_number)
+    insert_new_item(indexers.selic, next_date, selic_number)
+    insert_new_item(indexers.fgts, next_date, fgts_number)
+    insert_new_item(indexers.poup, next_date, poup_number)
     st.balloons()
     st.success("Registro salvo com sucesso! A página será recarregada.", icon="✅")
     st.experimental_rerun()

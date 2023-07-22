@@ -1,1 +1,1 @@
-uvicorn indexer_api:app --debug
+uvicorn indexer_api:app --debug --reload
