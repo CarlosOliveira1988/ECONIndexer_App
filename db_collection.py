@@ -9,6 +9,9 @@ from datetime import datetime
 from dates import DateOperations as date
 from interest_rate import InterestCalculation as interest
 
+from db_connection import init_connection
+
+
 
 class DBCollection(ABC):
     
@@ -154,6 +157,11 @@ class DBCollection(ABC):
         return df
 
 
+    def get_adjusted_value_from_values(self, initial_value: float, initial_date: datetime, final_date: datetime, rate_value: float, rate_type: str) -> float:
+        df = self.get_stacked_dataframe_adjusted_from_values(initial_value, initial_date, final_date, rate_value, rate_type)
+        return df[self.STACKED_ADJ_VALUE_COLUMN].iloc[-1]
+
+
     def get_years_from_stacked_dataframe(self, unique=True) -> list:
         df = self.get_stacked_dataframe()
         if unique:
@@ -208,14 +216,40 @@ class FGTSCollection(DBCollection):
 
 class PoupancaCollection(DBCollection):
     def __init__(self, mongo_client: pymongo.MongoClient) -> None:
-        super().__init__(mongo_client, "economic_indexers", "poupanca", "Poupança")
+        super().__init__(mongo_client, "economic_indexers", "poupanca", "POUPANCA")
         self.set_link_for_scraping(r"http://www.yahii.com.br/poupanca.html")
 
 
+
+class EconomicIndexers:
+    def __init__(self) -> None:
+        self.mongo_client = init_connection()
+
+        self.db_collection_dict = {}
+        self.ipca = self.__add_to_db_collection_dict(IPCACollection(self.mongo_client))
+        self.cdi = self.__add_to_db_collection_dict(CDICollection(self.mongo_client))
+        self.selic = self.__add_to_db_collection_dict(SELICCollection(self.mongo_client))
+        self.fgts = self.__add_to_db_collection_dict(FGTSCollection(self.mongo_client))
+        self.poup = self.__add_to_db_collection_dict(PoupancaCollection(self.mongo_client))
+
+    def __add_to_db_collection_dict(self, db_collection: DBCollection, ) -> DBCollection:
+        self.db_collection_dict[db_collection.get_title()] = db_collection
+        return db_collection
+
+    def get_db_collection_by_indexer(self, indexer_reference: str) -> DBCollection:
+        return self.db_collection_dict.get(indexer_reference)
+
+    def get_db_collection_titles_list(self) -> list:
+        return [collection.get_title() for collection in self.db_collection_dict.values()]
+
+
+
 if __name__ == "__main__":
-    from db_connection import init_connection
-    mongo_client = init_connection()
-    ipca = IPCACollection(mongo_client)
+
+    indexers = EconomicIndexers()
+    
+    ipca = indexers.get_db_collection_by_indexer("IPCA")
+    
     print(ipca.get_raw_dataframe())
     print(ipca.get_stacked_dataframe())
     print(ipca.get_stacked_dataframe_from_dates(datetime(2000,1,1), datetime(2000,12,1)))
