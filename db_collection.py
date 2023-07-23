@@ -157,6 +157,11 @@ class DBCollection(ABC):
         return df
 
 
+    def get_adjusted_value_from_values(self, initial_value: float, initial_date: datetime, final_date: datetime, rate_value: float, rate_type: str) -> float:
+        df = self.get_stacked_dataframe_adjusted_from_values(initial_value, initial_date, final_date, rate_value, rate_type)
+        return df[self.STACKED_ADJ_VALUE_COLUMN].iloc[-1]
+
+
     def get_years_from_stacked_dataframe(self, unique=True) -> list:
         df = self.get_stacked_dataframe()
         if unique:
@@ -236,6 +241,7 @@ class EconomicIndexers:
 
     def get_db_collection_titles_list(self) -> list:
         return [collection.get_title() for collection in self.db_collection_dict.values()]
+
 
 
 if __name__ == "__main__":

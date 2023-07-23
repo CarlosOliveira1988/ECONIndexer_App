@@ -12,8 +12,6 @@ from db_collection import EconomicIndexers
 
 app = FastAPI()
 
-indexers = EconomicIndexers()
-
 
 
 @app.get("/")
@@ -95,13 +93,12 @@ def get_final_value_by_indexer(
     Returns:
         float: the total amount of money.
     """
+    indexers = EconomicIndexers()
     indexer = indexers.get_db_collection_by_indexer(indexer_reference)
     if indexer:
         rate_value = indexer_add_rate
         rate_type = interest.ADDED_RATE_TYPE_LIST[indexer_type]
-        df = indexer.get_stacked_dataframe_adjusted_from_values(initial_value, initial_date, final_date, rate_value, rate_type)
-        final_value_by_indexer = df[indexer.STACKED_ADJ_VALUE_COLUMN].iloc[-1]
-        return final_value_by_indexer
+        return indexer.get_adjusted_value_from_values(initial_value, initial_date, final_date, rate_value, rate_type)
     else:
         raise HTTPException(status_code=500, detail="O valor para a variável 'indexer_reference' é inválido.")
 
@@ -184,6 +181,7 @@ def get_benchmarking_by_indexer(
     Returns:
         float: Indexer Interest Value divided per the User Interest Value.
     """
+    indexers = EconomicIndexers()
     indexer = indexers.get_db_collection_by_indexer(indexer_reference)
     if indexer_reference == "CDI":
         pass
