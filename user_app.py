@@ -7,13 +7,15 @@ import locale
 
 import streamlit as st
 
-from db_collection import DBCollection, EconomicIndexers
+from API.db_collection import DBCollection, EconomicIndexers
 
-from dates import DateOperations as date
+from API.dates import DateOperations as date
 
-from interest_rate import InterestCalculation as interest
+from API.interest_rate import InterestCalculation as interest
 
-from indexer_api import get_interest_value, get_interest_rate
+from API.indexer_api import get_interest_value, get_interest_rate
+
+from db_connection import init_connection
 
 
 
@@ -115,8 +117,6 @@ def fill_data_in_tab(collection: DBCollection, rate_value, rate_index) -> None:
     show_indexer_historic_chart(collection, stacked_dataframe)
 
     show_indexer_historic_table(collection)
-    
-
 
 
 
@@ -126,7 +126,9 @@ st.write("## Indicadores Econômicos")
 
 
 
-indexers = EconomicIndexers()
+mongo_client = init_connection()
+
+indexers = EconomicIndexers(mongo_client)
 
 
 

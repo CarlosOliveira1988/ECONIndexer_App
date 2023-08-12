@@ -8,7 +8,9 @@ import streamlit as st
 
 from dateutil.relativedelta import relativedelta
 
-from db_collection import DBCollection, EconomicIndexers
+from API.db_collection import DBCollection, EconomicIndexers
+
+from db_connection import init_connection
 
 
 # Example:
@@ -101,7 +103,9 @@ st.set_page_config(
 
 
 
-indexers = EconomicIndexers()
+mongo_client = init_connection()
+
+indexers = EconomicIndexers(mongo_client)
 
 
 

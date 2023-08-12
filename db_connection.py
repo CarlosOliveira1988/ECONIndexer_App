@@ -1,3 +1,5 @@
+"""Script used to establish MongoDB connection with Streamlit."""
+
 import pymongo
 
 import streamlit as st

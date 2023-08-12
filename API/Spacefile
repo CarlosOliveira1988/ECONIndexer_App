@@ -1,0 +1,11 @@
+# Yaml file for Deta Space deployment
+
+v: 0
+micros:
+  - name: ECONIndexer-API
+    src: ./
+    engine: python3.9
+    primary: true
+    run: uvicorn indexer_api:app --debug --reload
+    public_routes:
+          - "/*"

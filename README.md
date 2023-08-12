@@ -5,7 +5,7 @@ The main purpose of this repository is improving my skills with __Python__ and _
 
 For now, we have 2 main apps:
 
- - [user_app](https://econindexerapi-user.streamlit.app/): used to display a full table related to each Economic Indexer, in order to perform some calculation and analyse some charts
+- [user_app](https://econindexerapi-user.streamlit.app/): used to display a full table related to each Economic Indexer, in order to perform some calculation and analyse some charts
 ![image](https://user-images.githubusercontent.com/70613924/235555553-0fa53b23-7b72-4410-94b5-14575c091d29.png)
 
 - [admin_app](https://econindexerapi-insert.streamlit.app/): used to register the Economic Indexers values in MongoDB (once a month, usually in the 15th day)

@@ -1,0 +1,7 @@
+# Requirements for Deta Space
+
+fastapi==0.78.0
+pandas==1.5.3
+pymongo==4.3.3
+python-dotenv==0.20.0
+uvicorn==0.17.6
