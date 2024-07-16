@@ -203,17 +203,17 @@ class DBCollection(ABC):
 class IPCACollection(DBCollection):
     def __init__(self, mongo_client: pymongo.MongoClient) -> None:
         super().__init__(mongo_client, "economic_indexers", "ipca", "IPCA")
-        self.set_link_for_scraping(r"https://www.valor.srv.br/indices/ipca.php")
+        self.set_link_for_scraping(r"https://www.debit.com.br/tabelas/ipca-indice-nacional-de-precos-ao-consumidor-amplo")
 
 class CDICollection(DBCollection):
     def __init__(self, mongo_client: pymongo.MongoClient) -> None:
         super().__init__(mongo_client, "economic_indexers", "cdi", "CDI")
-        self.set_link_for_scraping(r"https://www.valor.srv.br/indices/cdi.php")
+        self.set_link_for_scraping(r"http://www.yahii.com.br/cetip.html")
 
 class SELICCollection(DBCollection):
     def __init__(self, mongo_client: pymongo.MongoClient) -> None:
         super().__init__(mongo_client, "economic_indexers", "selic", "SELIC")
-        self.set_link_for_scraping(r"https://www.valor.srv.br/indices/selic.php")
+        self.set_link_for_scraping(r"http://www.yahii.com.br/Selic.html")
 
 class FGTSCollection(DBCollection):
     def __init__(self, mongo_client: pymongo.MongoClient) -> None:
